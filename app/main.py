@@ -4,23 +4,35 @@ from typing import Any
 
 app = FastAPI()
 
-@app.get("/shipment/latest")
-def get_latest_shipment() -> dict[str, Any]:
-    return {
-        "id": 101,
+db = {
+    101 : {
         "content": "smartphone",
         "weight": 0.5,
         "status": "placed"
-    }
-
-@app.get("/shipment/{id}")
-def get_shipment_by_id(id: int) -> dict[str, Any]:
-    return {
-        "id": id,
+    },
+    102 : {
         "content": "laptop",
         "weight": 2.1,
         "status": "delivered"
+    },
+    103 : {
+        "content": "tablet",
+        "weight": 0.8,
+        "status": "in transit"
     }
+}
+
+@app.get("/shipment/latest")
+def get_latest_shipment() -> dict[str, Any]:
+    latest_id = max(db.keys())
+    shipment = db[latest_id]
+    return shipment
+
+@app.get("/shipment/{id}")
+def get_shipment_by_id(id: int) -> dict[str, Any]:
+    if id in db:
+        return db[id]
+    return {"error": "Shipment not found"}
 
 @app.get("/scalar", include_in_schema=False)
 def get_scalar_docs():
