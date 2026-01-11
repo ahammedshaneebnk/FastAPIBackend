@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from scalar_fastapi import get_scalar_api_reference
 from typing import Any
 
@@ -22,25 +22,19 @@ db = {
     }
 }
 
-# @app.get("/shipment/latest")
-# def get_latest_shipment() -> dict[str, Any]:
-#     latest_id = max(db.keys())
-#     shipment = db[latest_id]
-#     return shipment
-
-# @app.get("/shipment/{id}")
-# def get_shipment_by_id(id: int) -> dict[str, Any]:
-#     if id in db:
-#         return db[id]
-#     return {"error": "Shipment not found"}
-
-#query parameter example
 @app.get("/shipment")
-def get_shipment(id: int | None = None) -> dict[str, Any]:
-    if id is None or id not in db:
-        latest_id = max(db.keys())
-        return db[latest_id]
-    return db[id]
+def get_shipment(shipment_id: int | None = None) -> dict[str, Any]:
+    if shipment_id is None:
+        max_id = max(db.keys())
+        return db[max_id]
+    
+    if shipment_id in db:
+        return db[shipment_id]
+    
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Shipmet ID does not exist!"
+    )
 
 @app.get("/scalar", include_in_schema=False)
 def get_scalar_docs():
