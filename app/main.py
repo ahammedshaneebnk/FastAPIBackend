@@ -22,17 +22,25 @@ db = {
     }
 }
 
-@app.get("/shipment/latest")
-def get_latest_shipment() -> dict[str, Any]:
-    latest_id = max(db.keys())
-    shipment = db[latest_id]
-    return shipment
+# @app.get("/shipment/latest")
+# def get_latest_shipment() -> dict[str, Any]:
+#     latest_id = max(db.keys())
+#     shipment = db[latest_id]
+#     return shipment
 
-@app.get("/shipment/{id}")
-def get_shipment_by_id(id: int) -> dict[str, Any]:
-    if id in db:
-        return db[id]
-    return {"error": "Shipment not found"}
+# @app.get("/shipment/{id}")
+# def get_shipment_by_id(id: int) -> dict[str, Any]:
+#     if id in db:
+#         return db[id]
+#     return {"error": "Shipment not found"}
+
+#query parameter example
+@app.get("/shipment")
+def get_shipment(id: int | None = None) -> dict[str, Any]:
+    if id is None or id not in db:
+        latest_id = max(db.keys())
+        return db[latest_id]
+    return db[id]
 
 @app.get("/scalar", include_in_schema=False)
 def get_scalar_docs():
