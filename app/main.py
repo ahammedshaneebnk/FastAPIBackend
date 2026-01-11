@@ -36,6 +36,22 @@ def get_shipment(shipment_id: int | None = None) -> dict[str, Any]:
         detail="Shipmet ID does not exist!"
     )
 
+@app.post("/shipment")
+def submit_shipment(content: str, weight: float) -> dict[str, int]:
+    if weight > 25:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Weight exceeds the maximum limit of 25 kg."
+        )
+    new_id = max(db.keys()) + 1
+    db[new_id] = {
+        "content": content,
+        "weight": weight,
+        "status": "placed"
+    }
+    return {"shipment_id": new_id}
+    
+
 @app.get("/scalar", include_in_schema=False)
 def get_scalar_docs():
     return get_scalar_api_reference(
