@@ -52,6 +52,22 @@ def submit_shipment(content: str, weight: float) -> dict[str, int]:
     return {"shipment_id": new_id}
     
 
+@app.put("/shipment")
+def update_shipment(
+    id : int, content : str, weight : float, shipment_status : str
+    ) -> dict[str, Any]:
+    if id not in db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Shipment ID does not exist!"
+        )
+    db[id] = {
+        "content": content,
+        "weight": weight,
+        "status": shipment_status
+    }
+    return db[id]
+
 @app.get("/scalar", include_in_schema=False)
 def get_scalar_docs():
     return get_scalar_api_reference(
