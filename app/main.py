@@ -71,21 +71,14 @@ def update_shipment(
 @app.patch("/shipment")
 def patch_shipment(
     id : int,
-    content : str | None = None,
-    weight : float | None = None,
-    shipment_status : str | None = None
+    body : dict[str, Any]
     ) -> dict[str, Any]:
     if id not in db:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Shipment ID does not exist!"
         )
-    if content is not None:
-        db[id]["content"] = content
-    if weight is not None:
-        db[id]["weight"] = weight
-    if shipment_status is not None:
-        db[id]["status"] = shipment_status
+    db[id].update(body)
     return db[id]
 
 @app.get("/scalar", include_in_schema=False)
