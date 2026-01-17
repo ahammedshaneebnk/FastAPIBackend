@@ -1,14 +1,10 @@
 from fastapi import FastAPI, HTTPException, status
 from scalar_fastapi import get_scalar_api_reference
 from typing import Any
-from pydantic import BaseModel, Field
+
+from app.schemas import Shipment # or from .schemas import Shipment
 
 app = FastAPI()
-
-class Shipment(BaseModel):
-    content : str = Field(max_length=100)
-    weight : float = Field(ge=1, le=25)
-    destination : int | None = Field(default=None)
 
 db = {
     101 : {
