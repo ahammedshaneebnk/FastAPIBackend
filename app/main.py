@@ -1,8 +1,7 @@
 from fastapi import FastAPI, HTTPException, status
 from scalar_fastapi import get_scalar_api_reference
-from typing import Any
 
-from .schemas import Shipment, ShipmentStatus
+from .schemas import ShipmentStatus, ShipmentCreate, ShipmentRead, ShipmentUpdate
 
 app = FastAPI()
 
@@ -24,8 +23,8 @@ db = {
     }
 }
 
-@app.get("/shipment")
-def get_shipment(shipment_id: int | None = None) -> dict[str, Any]:
+@app.get("/shipment", response_model=ShipmentRead)
+def get_shipment(shipment_id: int | None = None):
     if shipment_id is None:
         max_id = max(db.keys())
         return db[max_id]
@@ -39,43 +38,17 @@ def get_shipment(shipment_id: int | None = None) -> dict[str, Any]:
     )
 
 @app.post("/shipment")
-def submit_shipment(body : Shipment) -> dict[str, int]:
-    if body.weight > 25:
-        raise HTTPException(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            detail="Weight exceeds the maximum limit of 25 kg."
-        )
+def submit_shipment(body : ShipmentCreate) -> dict[str, int]:
     new_id = max(db.keys()) + 1
     db[new_id] = {
         "content": body.content,
         "weight": body.weight,
         "destination": body.destination,
-        "status": body.placed
-    }
+        "status": ShipmentStatus.placed}
     return {"shipment_id": new_id}
-    
 
-@app.put("/shipment")
-def update_shipment(
-    id : int, content : str, weight : float, shipment_status : ShipmentStatus
-    ) -> dict[str, Any]:
-    if id not in db:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Shipment ID does not exist!"
-        )
-    db[id] = {
-        "content": content,
-        "weight": weight,
-        "status": shipment_status
-    }
-    return db[id]
-
-@app.patch("/shipment")
-def patch_shipment(
-    id : int,
-    body : dict[str, Any]
-    ) -> dict[str, Any]:
+@app.patch("/shipment", response_model=ShipmentRead)
+def patch_shipment(id : int, body : ShipmentUpdate):
     if id not in db:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
