@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, status
 from scalar_fastapi import get_scalar_api_reference
 from typing import Any
 
-from app.schemas import Shipment # or from .schemas import Shipment
+from .schemas import Shipment, ShipmentStatus
 
 app = FastAPI()
 
@@ -50,14 +50,14 @@ def submit_shipment(body : Shipment) -> dict[str, int]:
         "content": body.content,
         "weight": body.weight,
         "destination": body.destination,
-        "status": "placed"
+        "status": body.placed
     }
     return {"shipment_id": new_id}
     
 
 @app.put("/shipment")
 def update_shipment(
-    id : int, content : str, weight : float, shipment_status : str
+    id : int, content : str, weight : float, shipment_status : ShipmentStatus
     ) -> dict[str, Any]:
     if id not in db:
         raise HTTPException(

@@ -1,8 +1,11 @@
 from pydantic import BaseModel, Field
-from random import randint
+from enum import Enum
 
-def generate_random_destination() -> int:
-    return randint(60000, 699999)
+class ShipmentStatus(str, Enum):
+    placed = "placed"
+    in_transit = "in_transit"
+    out_for_delivery = "out_for_delivery"
+    delivered = "delivered"
 
 class Shipment(BaseModel):
     content : str = Field(
@@ -15,5 +18,9 @@ class Shipment(BaseModel):
         le=25)
     destination : int | None = Field(
         description="Destination postal code",
-        default_factory=generate_random_destination
+        default=None
+    )
+    placed : ShipmentStatus | None = Field(
+        description="Current status of the shipment",
+        default=ShipmentStatus.placed
     )
