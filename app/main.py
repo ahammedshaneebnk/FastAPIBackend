@@ -1,14 +1,14 @@
 from fastapi import FastAPI, HTTPException, status
 from scalar_fastapi import get_scalar_api_reference
 from typing import Any
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 
 class Shipment(BaseModel):
-    content : str
-    weight : float
-    status : str
+    content : str = Field(max_length=100)
+    weight : float = Field(ge=1, le=25)
+    destination : int | None = Field(default=None)
 
 db = {
     101 : {
@@ -53,6 +53,7 @@ def submit_shipment(body : Shipment) -> dict[str, int]:
     db[new_id] = {
         "content": body.content,
         "weight": body.weight,
+        "destination": body.destination,
         "status": "placed"
     }
     return {"shipment_id": new_id}
